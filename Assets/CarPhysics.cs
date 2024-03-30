@@ -102,6 +102,9 @@ public class CarPhysics : MonoBehaviour
                 ApplySteering(wheel, hit);
                 DisplayWheels(wheel, hit);
             }
+            DisplayWheels(wheel, hit);
+
+
         }
     }
 
@@ -146,7 +149,11 @@ public class CarPhysics : MonoBehaviour
 
     private void DisplayWheels(WheelData wheel, RaycastHit hit)
     {
-        wheel.transform.GetChild(0).transform.localPosition = new Vector3(0, -hit.distance + 0.5f, 0);
+
+        float distance = hit.distance != 0 ? hit.distance : suspensionRestDist;
+        distance -= 0.5f;
+
+        wheel.transform.GetChild(0).transform.localPosition = new Vector3(0, -distance, 0);
     }
 
     private void ApplyAcceleration(WheelData wheel)
