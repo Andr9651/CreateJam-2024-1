@@ -5,6 +5,7 @@ public class Person : MonoBehaviour
 {
     Rigidbody rb;
     NavMeshAgent agent;
+    [SerializeField] Rigidbody gib;
 
 
     // Start is called before the first frame update
@@ -12,12 +13,6 @@ public class Person : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public void SetDestination(Vector3 pos)
@@ -28,13 +23,19 @@ public class Person : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (agent.enabled == true)
+        if (other.CompareTag("Player"))
         {
             agent.enabled = false;
-            rb.isKinematic = false;
-            rb.AddForceAtPosition(-collision.impulse * 0.5f, collision.GetContact(0).point, ForceMode.Impulse);
+            Destroy(gameObject);
+
+            for (int i = 0; i < 10; i++)
+            {
+                Vector3 posOffset = Random.onUnitSphere;
+                var gibBody = Instantiate(gib, transform.position + posOffset, Quaternion.identity);
+                gib.AddExplosionForce(50, other.transform.position, 5);
+            }
         }
     }
 }
