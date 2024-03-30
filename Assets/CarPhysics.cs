@@ -6,28 +6,35 @@ public class CarPhysics : MonoBehaviour
 {
     [SerializeField] private Transform car;
     [SerializeField] private Rigidbody carRigidBody;
+    [SerializeField] private List<WheelData> wheels;
+
+    [Header("Speed")]
     [SerializeField] private float carTopSpeed;
     [SerializeField] private AnimationCurve powerCurve;
-    [SerializeField] private List<WheelData> wheels;
+    [SerializeField] private int accelMultiplier;
+    [SerializeField] private float accelInput;
+    [SerializeField] private float coastingFriction;
+
+    [Header("Steering")]
+    [SerializeField] private float maxSteering;
     [SerializeField] private float tireGripFactor;
     [SerializeField] private float tireMass;
+
+    [Header("Suspension")]
     [SerializeField] private float suspensionRestDist;
     [SerializeField] private float springDamper;
     [SerializeField] private float springStrength;
-    [SerializeField] private float accelInput;
-    [SerializeField] private int accelMultiplier;
-    [SerializeField] private float maxSteering;
+
+    [Header("Other")]
+    [SerializeField] private float jumpForce;
+
 
     [System.Serializable]
     class WheelData
     {
         public Transform transform;
         public bool turnable;
-    }
-
-    void Start()
-    {
-
+        public bool isMoterized = true;
     }
 
     void OnTurn(InputValue input)
@@ -39,10 +46,7 @@ public class CarPhysics : MonoBehaviour
                 continue;
             }
 
-
             float rotation = input.Get<float>() * maxSteering;
-
-            print(rotation);
 
             wheel.transform.localRotation = Quaternion.Euler(0, rotation, 0);
         }
@@ -53,65 +57,110 @@ public class CarPhysics : MonoBehaviour
         accelInput = input.Get<float>();
     }
 
+    void OnJump(InputValue input)
+    {
+        if (Physics.Raycast(new Ray(transform.position, -transform.up), suspensionRestDist))
+        {
+            carRigidBody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.VelocityChange);
+        }
+    }
+
+    void OnFlip()
+    {
+        if (Physics.Raycast(new Ray(transform.position, transform.up), 2))
+        {
+            Vector3 rotation = carRigidBody.rotation.eulerAngles;
+            rotation.z = 0;
+            rotation.y = 0;
+
+            carRigidBody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.VelocityChange);
+
+            carRigidBody.rotation = Quaternion.Euler(rotation);
+        }
+
+    }
+
+    void Start()
+    {
+
+    }
+
     void FixedUpdate()
     {
         // --- the car physics stuff ---
         foreach (WheelData wheel in wheels)
         {
-            Transform wheelTransform = wheel.transform;
-
-            Debug.DrawLine(wheelTransform.position, wheelTransform.position - new Vector3(0, suspensionRestDist, 0), Color.blue);
-
-
-            if (Physics.Raycast(new Ray(wheelTransform.position, -wheelTransform.up), out RaycastHit hit, suspensionRestDist))
+            if (Physics.Raycast(new Ray(wheel.transform.position, -wheel.transform.up), out RaycastHit hit, suspensionRestDist))
             {
+                ApplySuspension(wheel, hit);
 
-                Debug.DrawLine(wheelTransform.position, wheelTransform.position - new Vector3(0, hit.distance, 0), Color.red);
-                wheelTransform.GetChild(0).transform.localPosition = new Vector3(0, -hit.distance + 0.5f, 0);
+                if (wheel.isMoterized)
+                {
+                    ApplyAcceleration(wheel);
+                }
 
-                // --- suspension spring force ---
-
-                Vector3 springDir = wheelTransform.up;
-
-                Vector3 wheelVel = carRigidBody.GetPointVelocity(wheelTransform.position);
-
-                //offset from the raycast
-                float offset = suspensionRestDist - hit.distance;
-
-                float vel = Vector3.Dot(springDir, wheelVel);
-
-                float force = (offset * springStrength) - (vel * springDamper);
-
-                carRigidBody.AddForceAtPosition(springDir * force, wheelTransform.position);
-
-                // --- acceleration & braking ---
-
-                Vector3 accelDir = wheelTransform.forward;
-
-                float carSpeed = Vector3.Dot(car.forward, carRigidBody.velocity);
-
-                //normalize car speed
-                float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / carTopSpeed);
-
-                //available torque
-                float availableTorque = powerCurve.Evaluate(normalizedSpeed) * (accelInput * accelMultiplier);
-
-                carRigidBody.AddForceAtPosition(accelDir * availableTorque, wheelTransform.position);
-
-                // --- steering ---
-
-                Vector3 steeringDir = wheelTransform.right;
-
-                float steeringVel = Vector3.Dot(steeringDir, wheelVel);
-
-                float desiredVelChange = -steeringVel * tireGripFactor;
-
-                float desiredAccel = desiredVelChange / Time.fixedDeltaTime;
-
-                carRigidBody.AddForceAtPosition(steeringDir * tireMass * desiredAccel, wheelTransform.position);
+                ApplySteering(wheel, hit);
+                DisplayWheels(wheel, hit);
             }
         }
+    }
 
+    private void ApplySuspension(WheelData wheel, RaycastHit hit)
+    {
+        Vector3 springDir = wheel.transform.up;
+        Vector3 wheelVel = carRigidBody.GetPointVelocity(wheel.transform.position);
 
+        //offset from the raycast
+        float offset = suspensionRestDist - hit.distance;
+
+        float vel = Vector3.Dot(springDir, wheelVel);
+
+        float force = (offset * springStrength) - (vel * springDamper);
+
+        carRigidBody.AddForceAtPosition(springDir * force, wheel.transform.position);
+    }
+
+    private void ApplyCoastingFriction(WheelData wheel)
+    {
+        if (Mathf.Abs(accelInput) < 0.05)
+        {
+            Vector3 accelDir = wheel.transform.forward;
+
+            carRigidBody.AddForceAtPosition(-accelDir * coastingFriction, wheel.transform.position);
+        }
+    }
+
+    private void ApplySteering(WheelData wheel, RaycastHit hit)
+    {
+        Vector3 wheelVel = carRigidBody.GetPointVelocity(wheel.transform.position);
+        Vector3 steeringDir = wheel.transform.right;
+
+        float steeringVel = Vector3.Dot(steeringDir, wheelVel);
+
+        float desiredVelChange = -steeringVel * tireGripFactor;
+
+        float desiredAccel = desiredVelChange / Time.fixedDeltaTime;
+
+        carRigidBody.AddForceAtPosition(steeringDir * tireMass * desiredAccel, wheel.transform.position);
+    }
+
+    private void DisplayWheels(WheelData wheel, RaycastHit hit)
+    {
+        wheel.transform.GetChild(0).transform.localPosition = new Vector3(0, -hit.distance + 0.5f, 0);
+    }
+
+    private void ApplyAcceleration(WheelData wheel)
+    {
+        Vector3 accelDir = wheel.transform.forward;
+
+        float carSpeed = Vector3.Dot(car.forward, carRigidBody.velocity);
+
+        //normalize car speed
+        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / carTopSpeed);
+
+        //available torque
+        float availableTorque = powerCurve.Evaluate(normalizedSpeed) * (accelInput * accelMultiplier);
+
+        carRigidBody.AddForceAtPosition(accelDir * availableTorque, wheel.transform.position);
     }
 }
