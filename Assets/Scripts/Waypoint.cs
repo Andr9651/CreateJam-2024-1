@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 public class Waypoint : MonoBehaviour
 {
     [SerializeField]
-    private List<Transform> links;
+    List<Transform> links;
 
     [Range(0, 5)]
     [SerializeField] private float triggerDelayRange = 1;
@@ -24,9 +25,20 @@ public class Waypoint : MonoBehaviour
 
             StartCoroutine(TriggerAfterWait(() =>
             {
-                person.SetDestination(links[Random.Range(0, links.Count)].position);
+                person.SetDestination(getRandomPosition());
             }));
         }
+    }
+
+    private Vector3 getRandomPosition()
+    {
+        var link = links[Random.Range(0, links.Count)];
+        var xScale = link.transform.localScale.x / 2;
+        var zScale = link.transform.localScale.z / 2;
+        var xOffset = Random.Range(-xScale, xScale);
+        var zOffset = Random.Range(-zScale, zScale);
+
+        return link.position + new Vector3(xOffset, 0, zOffset);
     }
 
     IEnumerator TriggerAfterWait(System.Action trigger)
@@ -49,6 +61,11 @@ public class Waypoint : MonoBehaviour
         }
     }
 
+    private void OnValidate()
+    {
+        links = links.Distinct().Where(link => link.Equals(transform) == false).ToList();
+    }
+
     [MenuItem("Custom Editors/Link Waypoints")]
     public static void LinkWaypoints()
     {
@@ -58,8 +75,6 @@ public class Waypoint : MonoBehaviour
             Debug.Log("A waypoint is not the primary selection");
             return;
         }
-
-        Debug.Log("Joining waypoints");
 
         List<Waypoint> waypoints = new List<Waypoint>();
 
@@ -71,41 +86,25 @@ public class Waypoint : MonoBehaviour
             }
         }
 
+        var currentObj = new SerializedObject(currentWaypoint);
 
-        Debug.Log(waypoints.Count);
+        var currentLinks = currentObj.FindProperty(nameof(links));
 
-        Undo.RecordObjects(waypoints.ToArray(), "Link waypoints");
-
-        foreach (var waypointToBeAdded in waypoints)
+        foreach (var waypoint in waypoints)
         {
-            Debug.Log(currentWaypoint.name + " <-> " + waypointToBeAdded.name);
-            if (currentWaypoint.Equals(waypointToBeAdded))
-            {
-                Debug.Log("same");
-                continue;
-            }
 
-            var isAlreadyLinked = false;
+            currentLinks.InsertArrayElementAtIndex(0);
+            currentLinks.GetArrayElementAtIndex(0).objectReferenceValue = waypoint.transform;
 
-            foreach (var linkedWaypoint in currentWaypoint.links)
-            {
-                if (waypointToBeAdded.Equals(linkedWaypoint))
-                {
-                    Debug.Log("already linked");
-                    isAlreadyLinked = true;
-                    continue;
+            var waypointObj = new SerializedObject(waypoint);
+            var waypointLinks = waypointObj.FindProperty(nameof(links));
 
-                }
-            }
-
-            if (isAlreadyLinked)
-            {
-                continue;
-            }
-
-            currentWaypoint.links.Add(waypointToBeAdded.transform);
-            waypointToBeAdded.links.Add(currentWaypoint.transform);
+            waypointLinks.InsertArrayElementAtIndex(0);
+            waypointLinks.GetArrayElementAtIndex(0).objectReferenceValue = currentWaypoint.transform;
+            waypointObj.ApplyModifiedProperties();
         }
+
+        currentObj.ApplyModifiedProperties();
     }
 
     [MenuItem("Custom Editors/Clear Waypoint links")]
@@ -121,11 +120,17 @@ public class Waypoint : MonoBehaviour
             }
         }
 
-        Undo.RecordObjects(waypoints.ToArray(), "Clear waypoint links");
-
         foreach (var waypoint in waypoints)
         {
-            waypoint.links.Clear();
+            var obj = new SerializedObject(waypoint);
+
+            print(nameof(links));
+
+            var linkArray = obj.FindProperty(nameof(links));
+
+            linkArray.ClearArray();
+            obj.ApplyModifiedProperties();
         }
     }
+
 }
