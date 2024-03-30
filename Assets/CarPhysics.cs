@@ -13,8 +13,7 @@ public class CarPhysics : MonoBehaviour
     [SerializeField] private AnimationCurve powerCurve;
     [SerializeField] private int accelMultiplier;
     [SerializeField] private float accelInput;
-    [SerializeField] private float coastingFriction;
-
+    [SerializeField] private float maxRollingFriction;
     [Header("Steering")]
     [SerializeField] private float maxSteering;
     [SerializeField] private float tireGripFactor;
@@ -99,6 +98,8 @@ public class CarPhysics : MonoBehaviour
                     ApplyAcceleration(wheel);
                 }
 
+                ApplyRollingFriction(wheel);
+
                 ApplySteering(wheel, hit);
                 DisplayWheels(wheel, hit);
             }
@@ -123,13 +124,16 @@ public class CarPhysics : MonoBehaviour
         carRigidBody.AddForceAtPosition(springDir * force, wheel.transform.position);
     }
 
-    private void ApplyCoastingFriction(WheelData wheel)
+    private void ApplyRollingFriction(WheelData wheel)
     {
         if (Mathf.Abs(accelInput) < 0.05)
         {
-            Vector3 accelDir = wheel.transform.forward;
 
-            carRigidBody.AddForceAtPosition(-accelDir * coastingFriction, wheel.transform.position);
+            Vector3 wheelVel = carRigidBody.GetPointVelocity(wheel.transform.position);
+            Vector3 steeringDir = wheel.transform.forward;
+            Vector3 frictionDir = steeringDir * Mathf.Sign(Vector3.Dot(steeringDir, wheelVel));
+
+            carRigidBody.AddForceAtPosition(frictionDir * -maxRollingFriction, wheel.transform.position);
         }
     }
 
