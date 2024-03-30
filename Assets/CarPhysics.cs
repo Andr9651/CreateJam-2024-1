@@ -10,11 +10,13 @@ public class CarPhysics : MonoBehaviour
     [SerializeField] private float carTopSpeed;
     [SerializeField] private AnimationCurve powerCurve;
     [SerializeField] private List<Transform> wheels;
+    [SerializeField] private float tireGripFactor;
+    [SerializeField] private float tireMass;
     [SerializeField] private float suspensionRestDist;
     [SerializeField] private float springDamper;
     [SerializeField] private float springStrength;
 
-    [Range(0, 100)] 
+    //[Range(0, 100)] 
     [SerializeField] private int accelInput; //dummy
     
     void Start()
@@ -24,9 +26,26 @@ public class CarPhysics : MonoBehaviour
     
     void Update()
     {
+        
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            accelInput = 10;
+        }
+        else
+        {
+            accelInput = 0;
+        }
+        
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            accelInput = -10;
+        }
+        
+ 
+        
+        // --- the car physics stuff ---
         foreach (Transform wheel in wheels)
         {
-            
             if (Physics.Raycast(new Ray(wheel.position, -wheel.up), out RaycastHit hit, 1))
             {
                 // --- suspension spring force ---
@@ -47,22 +66,32 @@ public class CarPhysics : MonoBehaviour
 
                 Vector3 accelDir = wheel.forward;
 
-                if (accelInput > 0.0f)
-                {
-                    float carSpeed = Vector3.Dot(car.forward, carRigidBody.velocity);
+                //if (accelInput > 0.0f)
                 
-                    //normalize car speed
-                    float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / carTopSpeed);
+                float carSpeed = Vector3.Dot(car.forward, carRigidBody.velocity);
+            
+                //normalize car speed
+                float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / carTopSpeed);
+            
+                //available torque
+                float availableTorque = powerCurve.Evaluate(normalizedSpeed) * accelInput;
                 
-                    //available torque
-                    float availableTorque = powerCurve.Evaluate(normalizedSpeed) * accelInput;
-                    
-                    carRigidBody.AddForceAtPosition(accelDir * availableTorque, wheel.position);
-                }
+                carRigidBody.AddForceAtPosition(accelDir * availableTorque, wheel.position);
                 
+                // --- steering ---
+
+                Vector3 steeringDir = wheel.right;
+
+                float steeringVel = Vector3.Dot(steeringDir, wheelVel);
+
+                float desiredVelChange = -steeringVel * tireGripFactor;
+
+                float desiredAccel = desiredVelChange / Time.fixedDeltaTime;
+                
+                carRigidBody.AddForceAtPosition(steeringDir * tireMass * desiredAccel, wheel.position);
             }
         }
+
         
-        //
     }
 }
