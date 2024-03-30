@@ -22,7 +22,10 @@ public class Person : MonoBehaviour
 
     public void SetDestination(Vector3 pos)
     {
-        agent.SetDestination(pos);
+        if (agent.enabled == true)
+        {
+            agent.SetDestination(pos);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)

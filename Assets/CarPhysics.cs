@@ -81,7 +81,7 @@ public class CarPhysics : MonoBehaviour
 
     void Start()
     {
-
+        carRigidBody.centerOfMass = new Vector3(0, 0, 0);
     }
 
     void FixedUpdate()
