@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 public class Waypoint : MonoBehaviour
@@ -66,6 +68,7 @@ public class Waypoint : MonoBehaviour
         links = links.Distinct().Where(link => link.Equals(transform) == false).ToList();
     }
 
+#if UNITY_EDITOR
     [MenuItem("Custom Editors/Link Waypoints")]
     public static void LinkWaypoints()
     {
@@ -132,5 +135,5 @@ public class Waypoint : MonoBehaviour
             obj.ApplyModifiedProperties();
         }
     }
-
+#endif
 }

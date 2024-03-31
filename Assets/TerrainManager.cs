@@ -1,21 +1,14 @@
 using System.Linq;
 using Unity.VisualScripting;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 public class TerrainManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+#if UNITY_EDITOR
 
     [ContextMenu("Add Mesh Colliders")]
     public void AddMeshColliders()
@@ -49,7 +42,7 @@ public class TerrainManager : MonoBehaviour
         var asset = AssetDatabase.LoadAssetAtPath<Object>(assetPath);
 
         var newObject = Instantiate(asset, Selection.activeTransform.position, Quaternion.identity, Selection.activeTransform.parent);
-        
+
         newObject.AddComponent<MeshCollider>();
 
         Undo.DestroyObjectImmediate(Selection.activeTransform.gameObject);
@@ -58,5 +51,6 @@ public class TerrainManager : MonoBehaviour
 
         Selection.activeObject = newObject;
     }
+#endif
 
 }
