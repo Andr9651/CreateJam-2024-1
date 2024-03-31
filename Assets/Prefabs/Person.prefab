@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1870597613419504738}
   - component: {fileID: 6334021040969961413}
   - component: {fileID: 6199328318234557909}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Person
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,6 +148,7 @@ MonoBehaviour:
   gib: {fileID: 3926961141817134137, guid: cdfd77d49c547cc418bcb2c8290a11d9, type: 3}
   gibForce: 2000
   sprite: {fileID: 1981896324952797205}
+  personManager: {fileID: 0}
 --- !u!54 &6199328318234557909
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -185,7 +186,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1981896324952797205}
   - component: {fileID: 7337849102289043820}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
