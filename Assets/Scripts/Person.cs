@@ -11,6 +11,7 @@ public class Person : MonoBehaviour
 
     [SerializeField] Transform sprite;
     Camera cam;
+    public PersonManager personManager;
 
 
     // Start is called before the first frame update
@@ -47,6 +48,7 @@ public class Person : MonoBehaviour
 
             GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().kills++;
             sprite.gameObject.SetActive(false);
+            personManager.SpawnPerson();
 
             for (int i = 0; i < 10; i++)
             {

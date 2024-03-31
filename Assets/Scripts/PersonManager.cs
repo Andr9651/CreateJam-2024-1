@@ -12,17 +12,26 @@ public class PersonManager : MonoBehaviour
     [SerializeField] Person personPrefab;
     [SerializeField] float throwForce;
 
+    GameObject[] waypoints;
+
     // Start is called before the first frame update
     void Start()
     {
         camera = Camera.main;
 
-        var waypoints = GameObject.FindGameObjectsWithTag("Waypoint");
+        waypoints = GameObject.FindGameObjectsWithTag("Waypoint");
 
         for (int i = 0; i < amount; i++)
         {
-            Instantiate(personPrefab, waypoints[Random.Range(0, waypoints.Length)].transform.position, Quaternion.identity, transform);
+            SpawnPerson();
         }
+    }
+
+    public void SpawnPerson()
+    {
+        Person p = Instantiate(personPrefab, waypoints[Random.Range(0, waypoints.Length)].transform.position, Quaternion.identity, transform);
+
+        p.personManager = this;
     }
 
     // Update is called once per frame
