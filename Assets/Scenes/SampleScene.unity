@@ -1374,6 +1374,7 @@ MonoBehaviour:
   heightReached: 0
   timeStarted: 0
   kills: 0
+  resetPos: 1
   startPos: {x: 0, y: 0, z: 0}
 --- !u!4 &1811845305
 Transform:
@@ -1987,7 +1988,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 514238010400387680, guid: a5df184409aeb4c4390444e3a642294e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.78
+      value: -11.29
       objectReference: {fileID: 0}
     - target: {fileID: 514238010400387680, guid: a5df184409aeb4c4390444e3a642294e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1995,7 +1996,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 514238010400387680, guid: a5df184409aeb4c4390444e3a642294e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 8.54
+      value: 25.15
       objectReference: {fileID: 0}
     - target: {fileID: 514238010400387680, guid: a5df184409aeb4c4390444e3a642294e, type: 3}
       propertyPath: m_LocalRotation.w
