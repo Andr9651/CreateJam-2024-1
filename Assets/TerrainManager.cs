@@ -48,8 +48,8 @@ public class TerrainManager : MonoBehaviour
 
         var asset = AssetDatabase.LoadAssetAtPath<Object>(assetPath);
 
-        var newObject = Instantiate(asset, Selection.activeTransform.position, Quaternion.identity);
-
+        var newObject = Instantiate(asset, Selection.activeTransform.position, Quaternion.identity, Selection.activeTransform.parent);
+        
         newObject.AddComponent<MeshCollider>();
 
         Undo.DestroyObjectImmediate(Selection.activeTransform.gameObject);
