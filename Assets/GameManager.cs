@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public float heightReached;
     public float timeStarted;
     public int kills;
+    public bool resetPos = true;
 
 
     [SerializeField] Vector3 startPos = new Vector3(0, 2, 0);
@@ -46,8 +47,12 @@ public class GameManager : MonoBehaviour
         kills = 0;
         timeStarted = Time.time;
 
+        if (resetPos == false)
+        {
+            return;
+        }
+        
         player.position = startPos;
-
         var rb = player.GetComponent<Rigidbody>();
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
