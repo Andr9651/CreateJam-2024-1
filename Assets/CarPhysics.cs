@@ -81,6 +81,11 @@ public class CarPhysics : MonoBehaviour
 
     }
 
+    void OnReset()
+    {
+        FindFirstObjectByType<GameManager>().ResetScore();
+    }
+
     void Start()
     {
         carRigidBody.centerOfMass = new Vector3(0, 0, 0);

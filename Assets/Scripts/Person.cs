@@ -44,6 +44,8 @@ public class Person : MonoBehaviour
             gameObject.GetComponent<Collider>().enabled = false;
             gameObject.GetComponent<Renderer>().enabled = false;
             gameObject.GetComponent<Rigidbody>().isKinematic = true;
+
+            GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().kills++;
             sprite.gameObject.SetActive(false);
 
             for (int i = 0; i < 10; i++)
