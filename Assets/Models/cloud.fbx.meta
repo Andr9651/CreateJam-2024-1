@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: 9670184790ec1bd4d935112691538275
+guid: 0bc3a3691e03a9540a9b0d73836f0649
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: paintRed
-    second: {fileID: 2100000, guid: c41448c0b7672694491713b16f79da5d, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

@@ -26,6 +26,7 @@ public class CarPhysics : MonoBehaviour
 
     [Header("Other")]
     [SerializeField] private float jumpForce;
+    [SerializeField] private float smokeThreshhold;
 
 
     [System.Serializable]
@@ -34,6 +35,7 @@ public class CarPhysics : MonoBehaviour
         public Transform transform;
         public bool turnable;
         public bool isMoterized = true;
+        public ParticleSystem smoke;
     }
 
     void OnTurn(InputValue input)
@@ -102,6 +104,7 @@ public class CarPhysics : MonoBehaviour
 
                 ApplySteering(wheel, hit);
                 DisplayWheels(wheel, hit);
+                DriftSmoke(wheel, hit);
             }
             DisplayWheels(wheel, hit);
 
@@ -158,6 +161,37 @@ public class CarPhysics : MonoBehaviour
         distance -= 0.5f;
 
         wheel.transform.GetChild(0).transform.localPosition = new Vector3(0, -distance, 0);
+    }
+
+    private void DriftSmoke(WheelData wheel, RaycastHit hit)
+    {
+        if (wheel.smoke == null)
+        {
+            return;
+        }
+
+        Vector3 wheelVel = carRigidBody.GetPointVelocity(wheel.transform.position);
+        Vector3 steeringDir = wheel.transform.right;
+
+        float steeringVel = Vector3.Dot(steeringDir, wheelVel);
+
+        if (Mathf.Abs(steeringVel) > smokeThreshhold)
+        {
+            if (wheel.smoke.isPlaying == false)
+            {
+                print("play");
+                wheel.smoke.Play();
+            }
+        }
+        else
+        {
+            if (wheel.smoke.isPlaying == true)
+            {
+                print("stop");
+                wheel.smoke.Stop();
+            }
+        }
+
     }
 
     private void ApplyAcceleration(WheelData wheel)

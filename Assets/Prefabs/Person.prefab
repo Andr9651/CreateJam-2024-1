@@ -144,7 +144,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4f0c3753082b294da2251b4bbe32dfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gib: {fileID: 7994357387543609299, guid: bf3b73a07cc1237429c5b64d16f749a0, type: 3}
+  gib: {fileID: 3926961141817134137, guid: cdfd77d49c547cc418bcb2c8290a11d9, type: 3}
+  gibForce: 2000
 --- !u!54 &6199328318234557909
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -6,6 +7,7 @@ public class Person : MonoBehaviour
     Rigidbody rb;
     NavMeshAgent agent;
     [SerializeField] Rigidbody gib;
+    [SerializeField] float gibForce;
 
 
     // Start is called before the first frame update
@@ -28,14 +30,30 @@ public class Person : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             agent.enabled = false;
-            Destroy(gameObject);
+            gameObject.GetComponent<Collider>().enabled = false;
+            gameObject.GetComponent<Renderer>().enabled = false;
+            gameObject.GetComponent<Rigidbody>().isKinematic = true;
 
             for (int i = 0; i < 10; i++)
             {
                 Vector3 posOffset = Random.onUnitSphere;
                 var gibBody = Instantiate(gib, transform.position + posOffset, Quaternion.identity);
-                gib.AddExplosionForce(50, other.transform.position, 5);
+                gibBody.AddExplosionForce(gibForce, other.transform.position, 5);
+                StartCoroutine(DestroyGib(gibBody.gameObject));
             }
         }
+    }
+
+    IEnumerator DestroyGib(GameObject gib)
+    {
+
+        yield return new WaitForSeconds(3);
+        gib.GetComponent<MeshRenderer>().enabled = false;
+        gib.GetComponent<Rigidbody>().isKinematic = true;
+        gib.GetComponentInChildren<ParticleSystem>().Stop();
+
+        yield return new WaitForSeconds(1);
+        Destroy(gameObject);
+
     }
 }
