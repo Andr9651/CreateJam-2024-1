@@ -23,6 +23,11 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         heightReached = Mathf.Max(heightReached, player.position.y);
+
+        if (kills > 200)
+        {
+            WinSecret();
+        }
     }
 
     public void Win()
