@@ -104,8 +104,8 @@ public class CarPhysics : MonoBehaviour
 
                 ApplySteering(wheel, hit);
                 DisplayWheels(wheel, hit);
-                DriftSmoke(wheel, hit);
             }
+            DriftSmoke(wheel, hit);
             DisplayWheels(wheel, hit);
 
 
@@ -169,6 +169,13 @@ public class CarPhysics : MonoBehaviour
         {
             return;
         }
+        if (hit.distance == 0)
+        {
+            if (wheel.smoke.isPlaying == true)
+            {
+                wheel.smoke.Stop();
+            }
+        }
 
         Vector3 wheelVel = carRigidBody.GetPointVelocity(wheel.transform.position);
         Vector3 steeringDir = wheel.transform.right;
@@ -179,7 +186,6 @@ public class CarPhysics : MonoBehaviour
         {
             if (wheel.smoke.isPlaying == false)
             {
-                print("play");
                 wheel.smoke.Play();
             }
         }
@@ -187,7 +193,6 @@ public class CarPhysics : MonoBehaviour
         {
             if (wheel.smoke.isPlaying == true)
             {
-                print("stop");
                 wheel.smoke.Stop();
             }
         }
