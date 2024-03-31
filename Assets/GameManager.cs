@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class GameManager : MonoBehaviour
     public float heightReached;
     public float timeStarted;
     public int kills;
+
+
     [SerializeField] Vector3 startPos = new Vector3(0, 2, 0);
 
     // Start is called before the first frame update
@@ -20,6 +23,16 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         heightReached = Mathf.Max(heightReached, player.position.y);
+    }
+
+    public void Win()
+    {
+        SceneManager.LoadScene(1);
+    }
+
+    public void WinSecret()
+    {
+        SceneManager.LoadScene(2);
     }
 
     public void ResetScore()
